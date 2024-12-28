@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ article['name'] if article else 'Article Not Found' }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='article.css') }}">
+</head>
+<body>
+    <div id="article-container">
+        {% if error %}
+            <p>{{ error }}</p>  <!-- Display error message if no article is found -->
+        {% elif article %}
+            <h1>{{ article['name'] }}</h1> <!-- Display the article name -->
+            <p>{{ article['full_content'] }}</p> <!-- Display the full content -->
+        {% else %}
+            <p>Article not found.</p>
+        {% endif %}
+    </div>
+
+    <div id="back-button-container">
+        <button onclick="goBack()">Back</button>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();  // Go back to the previous page
+        }
+    </script>
+</body>
+</html>

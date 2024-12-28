@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Article Categorization and Recommendation</title>
+    <!-- Link to the CSS file from the static folder using url_for -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>News Article Categorization and Recommendation</h1>
+    </header>
+
+    <main>
+        <form id="article-form">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+
+            <label for="content">Content:</label><br>
+            <textarea id="content" name="content" required></textarea><br><br>
+
+            <button type="button" id="submit-button" onclick="processArticle()">Submit</button>
+        </form>
+
+        <div id="results" style="display:none;">
+            <h2>Results:</h2>
+            <p><strong>Category:</strong> <span id="category"></span></p>
+            <h3>Recommended Articles:</h3>
+            <ul id="recommendations"></ul>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" style="display:none; text-align: center; margin-top: 20px;">
+            <p>Processing...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-message" style="display:none; color: red; text-align: center; margin-top: 20px;">
+            <p>An error occurred. Please try again.</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>Copyright © 2024, All rights reserved, built by Ashir & Abdur Rehman</p>
+    </footer>
+
+    <script>
+        async function processArticle() {
+            const titleField = document.getElementById('title');
+            const contentField = document.getElementById('content');
+            const submitButton = document.getElementById('submit-button');
+
+            const title = titleField.value;
+            const content = contentField.value;
+
+            if (!title || !content) {
+                alert('Please fill in both the title and content.');
+                return;
+            }
+
+            // Show loading spinner and disable the button
+            document.getElementById('loading').style.display = 'block';
+            submitButton.disabled = true;
+
+            // Hide previous results and errors
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error-message').style.display = 'none';
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/categorize", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        content: content,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                console.error("Error:", error);
+
+                // Display error message
+                document.getElementById('error-message').style.display = 'block';
+            } finally {
+                // Hide loading spinner and re-enable the button
+                document.getElementById('loading').style.display = 'none';
+                submitButton.disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+    document.getElementById('results').style.display = 'block';
+
+    document.getElementById('category').textContent = ` ${data.category}`;
+    const recommendationsList = document.getElementById('recommendations');
+    recommendationsList.innerHTML = '';
+
+    data.recommendations.forEach((rec, index) => {
+        const listItem = document.createElement('li');
+        const truncatedContent = rec.content.length > 220 ? rec.content.substring(0, 220) + '...' : rec.content;
+
+        listItem.innerHTML = `
+            <h4>${rec.name} (${rec.category})</h4>
+            <p>${truncatedContent} <a href="/article/${rec.original_index}?name=${encodeURIComponent(rec.name)}">See more</a></p>
+        `;
+        recommendationsList.appendChild(listItem);
+    });
+}
+
+    </script>
+</body>
+</html>
+
