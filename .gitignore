@@ -1,2 +1,4 @@
 categorized_models_and_datasets/
-global_models_and_dataset/
+global_models_and_dataset/X_test_tfidf.pkl
+global_models_and_dataset/X_train_tfidf.pkl
+global_models_and_dataset/news_category_model.pkl
